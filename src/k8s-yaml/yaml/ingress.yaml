@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: swai-ingress
+  namespace: swai-ns
+  annotations:
+    alb.ingress.kubernetes.io/load-balancer-name: swai-alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /health
+    alb.ingress.kubernetes.io/security-groups: <SecurityGroupID>
+    alb.ingress.kubernetes.io/actions.response-404: >
+      {"type":"fixed-response","fixedResponseConfig":{"contentType":"text/plain","statusCode":"404","messageBody":"404 Not Found"}}
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: swai-svc
+                port:
+                  number: 8080
+          - path: /reports
+            pathType: Prefix
+            backend:
+              service:
+                name: swai-svc
+                port:
+                  number: 8080
+          - path: /map
+            pathType: Prefix
+            backend:
+              service:
+                name: swai-svc
+                port:
+                  number: 8080
+          - path: /image
+            pathType: Prefix
+            backend:
+              service:
+                name: swai-svc
+                port:
+                  number: 8080
+  defaultBackend:
+    service:
+      name: response-404
+      port:
+        name: use-annotation

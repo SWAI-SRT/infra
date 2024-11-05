@@ -1,0 +1,29 @@
+version: 0.2
+run-as: root
+
+phases:
+  install:
+    commands:
+      - echo install package...
+      - curl -O https://s3.us-west-2.amazonaws.com/amazon-eks/1.30.2/2024-07-12/bin/linux/amd64/kubectl
+      - chmod 777 kubectl
+      - mv kubectl /usr/bin
+  pre_build:
+    commands:
+      - AccountID=$(aws sts get-caller-identity --query "Account" --output text)
+      - ECR_NAME="swai-ecr"
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin $AccountID.dkr.ecr.ap-northeast-2.amazonaws.com
+      - SWAI_URI=$AccountID.dkr.ecr.ap-northeast-2.amazonaws.com/$ECR_NAME
+      - IMAGE_TAG=$(date -d "+9 hours" "+%Y-%m-%d.%H.%M.%S")
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t $SWAI_URI:$IMAGE_TAG ./swai/
+      - echo Pushing the Docker images...
+      - docker push $SWAI_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Writing image definition file...
+      - sed -i "s|IMAGE|$SWAI_URI:$IMAGE_TAG|g" ./k8s-yaml/yaml/swai/deployment.yaml
+      - aws eks --region ap-northeast-2 update-kubeconfig --name swai-eks-cluster
+      - kubectl apply -f ./k8s-yaml/yaml/swai/deployment.yaml
