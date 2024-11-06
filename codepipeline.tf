@@ -20,7 +20,7 @@ resource "aws_codepipeline" "pipeline" {
 
       configuration = {
         RepositoryName = aws_codecommit_repository.commit.repository_name
-        BranchName = "master"
+        BranchName = "swai"
         PollForSourceChanges = "false"
         OutputArtifactFormat = "CODE_ZIP"
       }
