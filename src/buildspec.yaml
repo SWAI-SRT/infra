@@ -18,12 +18,12 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t $SWAI_URI:$IMAGE_TAG ./swai/
+      - docker build -t $SWAI_URI:$IMAGE_TAG ./swai-app/
       - echo Pushing the Docker images...
       - docker push $SWAI_URI:$IMAGE_TAG
   post_build:
     commands:
       - echo Writing image definition file...
-      - sed -i "s|IMAGE|$SWAI_URI:$IMAGE_TAG|g" ./k8s-yaml/yaml/swai/deployment.yaml
+      - sed -i "s|IMAGE|$SWAI_URI:$IMAGE_TAG|g" ./k8s-yaml/yaml/swai-app/deployment.yaml
       - aws eks --region ap-northeast-2 update-kubeconfig --name swai-eks-cluster
-      - kubectl apply -f ./k8s-yaml/yaml/swai/deployment.yaml
+      - kubectl apply -f ./k8s-yaml/yaml/swai-app/deployment.yaml
