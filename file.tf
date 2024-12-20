@@ -19,6 +19,13 @@ resource "aws_s3_object" "buildspec" {
   content_type = "application/vnd.yaml"
 }
 
+resource "aws_s3_object" "swai" {
+  bucket = aws_s3_bucket.app.id
+  key    = "/swai-app/swai"
+  source = "./src/swai-app/swai"
+  etag   = filemd5("./src/swai-app/swai")
+}
+
 resource "aws_s3_object" "swai_Dockerfile" {
   bucket = aws_s3_bucket.app.id
   key    = "/swai-app/Dockerfile"

@@ -25,7 +25,8 @@ data "aws_iam_policy_document" "build" {
       "s3:*",
       "ecr:*",
       "codestar-connections:*",
-      "codecommit:*"
+      "codecommit:*",
+      "eks:DescribeCluster"
     ]
 
     resources = ["*"]
